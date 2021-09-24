@@ -238,4 +238,6 @@ source "drivers/counter/Kconfig"
 source "drivers/most/Kconfig"
 
 source "drivers/nvdla/Kconfig"
+
+source "drivers/clk/Kconfig"
 endmenu
