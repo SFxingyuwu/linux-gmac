@@ -1,0 +1,155 @@
+dwmac-visconti.c:129:	struct visconti_eth *dwmac = plat_dat->bsp_priv;
+dwmac-visconti.c:132:	switch (plat_dat->phy_interface) {
+dwmac-visconti.c:146:		dev_err(&pdev->dev, "Unsupported phy-mode (%d)\n", plat_dat->phy_interface);
+dwmac-visconti.c:170:	struct visconti_eth *dwmac = plat_dat->bsp_priv;
+dwmac-visconti.c:223:	plat_dat->bsp_priv = dwmac;
+dwmac-visconti.c:224:	plat_dat->fix_mac_speed = visconti_eth_fix_mac_speed;
+dwmac-visconti.c:232:	plat_dat->dma_cfg->aal = 1;
+dwmac-imx.c:55:	struct imx_priv_data *dwmac = plat_dat->bsp_priv;
+dwmac-imx.c:58:	switch (plat_dat->interface) {
+dwmac-imx.c:75:			 plat_dat->interface);
+dwmac-imx.c:151:	    (plat_dat->interface == PHY_INTERFACE_MODE_RMII) ||
+dwmac-imx.c:152:	    (plat_dat->interface == PHY_INTERFACE_MODE_MII))
+dwmac-imx.c:254:	plat_dat->addr64 = dwmac->ops->addr_width;
+dwmac-imx.c:255:	plat_dat->init = imx_dwmac_init;
+dwmac-imx.c:256:	plat_dat->exit = imx_dwmac_exit;
+dwmac-imx.c:257:	plat_dat->clks_config = imx_dwmac_clks_config;
+dwmac-imx.c:258:	plat_dat->fix_mac_speed = imx_dwmac_fix_speed;
+dwmac-imx.c:259:	plat_dat->bsp_priv = dwmac;
+dwmac-imx.c:277:	imx_dwmac_exit(pdev, plat_dat->bsp_priv);
+dwmac-meson.c:71:	plat_dat->bsp_priv = dwmac;
+dwmac-meson.c:72:	plat_dat->fix_mac_speed = meson6_dwmac_fix_mac_speed;
+dwmac-sun8i.c:1231:	plat_dat->interface = interface;
+dwmac-sun8i.c:1232:	plat_dat->rx_coe = STMMAC_RX_COE_TYPE2;
+dwmac-sun8i.c:1233:	plat_dat->tx_coe = 1;
+dwmac-sun8i.c:1234:	plat_dat->has_sun8i = true;
+dwmac-sun8i.c:1235:	plat_dat->bsp_priv = gmac;
+dwmac-sun8i.c:1236:	plat_dat->init = sun8i_dwmac_init;
+dwmac-sun8i.c:1237:	plat_dat->exit = sun8i_dwmac_exit;
+dwmac-sun8i.c:1238:	plat_dat->setup = sun8i_dwmac_setup;
+dwmac-sun8i.c:1239:	plat_dat->tx_fifo_size = 4096;
+dwmac-sun8i.c:1240:	plat_dat->rx_fifo_size = 16384;
+dwmac-sun8i.c:1246:	ret = sun8i_dwmac_init(pdev, plat_dat->bsp_priv);
+dwmac-anarion.c:122:	plat_dat->init = anarion_gmac_init;
+dwmac-anarion.c:123:	plat_dat->exit = anarion_gmac_exit;
+dwmac-anarion.c:125:	plat_dat->bsp_priv = gmac;
+dwmac-qcom-ethqos.c:500:	plat_dat->bsp_priv = ethqos;
+dwmac-qcom-ethqos.c:501:	plat_dat->fix_mac_speed = ethqos_fix_mac_speed;
+dwmac-qcom-ethqos.c:502:	plat_dat->has_gmac4 = 1;
+dwmac-qcom-ethqos.c:503:	plat_dat->pmt = 1;
+dwmac-qcom-ethqos.c:504:	plat_dat->tso_en = of_property_read_bool(np, "snps,tso");
+dwmac-ingenic.c:76:	struct ingenic_mac *mac = plat_dat->bsp_priv;
+dwmac-ingenic.c:90:	struct ingenic_mac *mac = plat_dat->bsp_priv;
+dwmac-ingenic.c:93:	switch (plat_dat->interface) {
+dwmac-ingenic.c:122:		dev_err(mac->dev, "Unsupported interface %d", plat_dat->interface);
+dwmac-ingenic.c:132:	struct ingenic_mac *mac = plat_dat->bsp_priv;
+dwmac-ingenic.c:134:	switch (plat_dat->interface) {
+dwmac-ingenic.c:140:		dev_err(mac->dev, "Unsupported interface %d", plat_dat->interface);
+dwmac-ingenic.c:150:	struct ingenic_mac *mac = plat_dat->bsp_priv;
+dwmac-ingenic.c:153:	switch (plat_dat->interface) {
+dwmac-ingenic.c:160:		dev_err(mac->dev, "Unsupported interface %d", plat_dat->interface);
+dwmac-ingenic.c:170:	struct ingenic_mac *mac = plat_dat->bsp_priv;
+dwmac-ingenic.c:173:	switch (plat_dat->interface) {
+dwmac-ingenic.c:181:		dev_err(mac->dev, "Unsupported interface %d", plat_dat->interface);
+dwmac-ingenic.c:191:	struct ingenic_mac *mac = plat_dat->bsp_priv;
+dwmac-ingenic.c:194:	switch (plat_dat->interface) {
+dwmac-ingenic.c:224:		dev_err(mac->dev, "Unsupported interface %d", plat_dat->interface);
+dwmac-ingenic.c:293:	plat_dat->bsp_priv = mac;
+dwmac-mediatek.c:414:	plat_dat->interface = priv_plat->phy_mode;
+dwmac-mediatek.c:415:	plat_dat->has_gmac4 = 1;
+dwmac-mediatek.c:416:	plat_dat->has_gmac = 0;
+dwmac-mediatek.c:417:	plat_dat->pmt = 0;
+dwmac-mediatek.c:418:	plat_dat->riwt_off = 1;
+dwmac-mediatek.c:419:	plat_dat->maxmtu = ETH_DATA_LEN;
+dwmac-mediatek.c:420:	plat_dat->bsp_priv = priv_plat;
+dwmac-mediatek.c:421:	plat_dat->init = mediatek_dwmac_init;
+dwmac-mediatek.c:422:	plat_dat->exit = mediatek_dwmac_exit;
+dwmac-rk.c:1592:	if (!plat_dat->has_gmac4)
+dwmac-rk.c:1593:		plat_dat->has_gmac = true;
+dwmac-rk.c:1594:	plat_dat->fix_mac_speed = rk_fix_speed;
+dwmac-rk.c:1596:	plat_dat->bsp_priv = rk_gmac_setup(pdev, plat_dat, data);
+dwmac-rk.c:1597:	if (IS_ERR(plat_dat->bsp_priv)) {
+dwmac-rk.c:1598:		ret = PTR_ERR(plat_dat->bsp_priv);
+dwmac-rk.c:1606:	ret = rk_gmac_powerup(plat_dat->bsp_priv);
+dwmac-rk.c:1617:	rk_gmac_powerdown(plat_dat->bsp_priv);
+dwmac-intel-plat.c:108:			plat_dat->fix_mac_speed = dwmac->data->fix_mac_speed;
+dwmac-intel-plat.c:135:		rate = clk_get_rate(plat_dat->clk_ptp_ref);
+dwmac-intel-plat.c:139:			ret = clk_set_rate(plat_dat->clk_ptp_ref, rate);
+dwmac-intel-plat.c:148:	plat_dat->bsp_priv = dwmac;
+dwmac-intel-plat.c:149:	plat_dat->eee_usecs_rate = plat_dat->clk_ptp_rate;
+dwmac-intel-plat.c:151:	if (plat_dat->eee_usecs_rate > 0) {
+dwmac-intel-plat.c:154:		tx_lpi_usec = (plat_dat->eee_usecs_rate / 1000000) - 1;
+dwmac-oxnas.c:132:	plat_dat->bsp_priv = dwmac;
+dwmac-oxnas.c:133:	plat_dat->init = oxnas_dwmac_init;
+dwmac-oxnas.c:134:	plat_dat->exit = oxnas_dwmac_exit;
+dwmac-oxnas.c:150:	ret = oxnas_dwmac_init(pdev, plat_dat->bsp_priv);
+dwmac-oxnas.c:162:	oxnas_dwmac_exit(pdev, plat_dat->bsp_priv);
+dwmac-socfpga.c:427:	plat_dat->bsp_priv = dwmac;
+dwmac-socfpga.c:428:	plat_dat->fix_mac_speed = socfpga_dwmac_fix_mac_speed;
+dwmac-sunxi.c:147:	plat_dat->tx_coe = 1;
+dwmac-sunxi.c:148:	plat_dat->has_gmac = true;
+dwmac-sunxi.c:149:	plat_dat->bsp_priv = gmac;
+dwmac-sunxi.c:150:	plat_dat->init = sun7i_gmac_init;
+dwmac-sunxi.c:151:	plat_dat->exit = sun7i_gmac_exit;
+dwmac-sunxi.c:152:	plat_dat->fix_mac_speed = sun7i_fix_speed;
+dwmac-sunxi.c:153:	plat_dat->tx_fifo_size = 4096;
+dwmac-sunxi.c:154:	plat_dat->rx_fifo_size = 16384;
+dwmac-sunxi.c:156:	ret = sun7i_gmac_init(pdev, plat_dat->bsp_priv);
+dwmac-sunxi.c:167:	sun7i_gmac_exit(pdev, plat_dat->bsp_priv);
+dwmac-sti.c:346:	plat_dat->bsp_priv = dwmac;
+dwmac-sti.c:347:	plat_dat->fix_mac_speed = data->fix_retime_src;
+dwmac-ipq806x.c:351:	plat_dat->has_gmac = true;
+dwmac-ipq806x.c:352:	plat_dat->bsp_priv = gmac;
+dwmac-ipq806x.c:353:	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
+dwmac-ipq806x.c:354:	plat_dat->multicast_filter_bins = 0;
+dwmac-ipq806x.c:355:	plat_dat->tx_fifo_size = 8192;
+dwmac-ipq806x.c:356:	plat_dat->rx_fifo_size = 8192;
+dwmac-meson8b.c:484:	plat_dat->bsp_priv = dwmac;
+dwmac-stm32.c:112:	struct stm32_dwmac *dwmac = plat_dat->bsp_priv;
+dwmac-stm32.c:169:	struct stm32_dwmac *dwmac = plat_dat->bsp_priv;
+dwmac-stm32.c:175:	switch (plat_dat->interface) {
+dwmac-stm32.c:214:			 plat_dat->interface);
+dwmac-stm32.c:230:	struct stm32_dwmac *dwmac = plat_dat->bsp_priv;
+dwmac-stm32.c:234:	switch (plat_dat->interface) {
+dwmac-stm32.c:245:			 plat_dat->interface);
+dwmac-stm32.c:400:	plat_dat->bsp_priv = dwmac;
+dwmac-generic.c:87:		plat_dat->multicast_filter_bins = HASH_TABLE_SIZE;
+dwmac-generic.c:90:		plat_dat->unicast_filter_entries = 1;
+dwmac-generic.c:94:	if (plat_dat->init) {
+dwmac-generic.c:95:		ret = plat_dat->init(pdev, plat_dat->bsp_priv);
+dwmac-generic.c:100:	plat_dat->fix_mac_speed = dwmac_fixed_speed;
+dwmac-generic.c:110:	if (plat_dat->exit)
+dwmac-generic.c:111:		plat_dat->exit(pdev, plat_dat->bsp_priv);
+dwmac-lpc18xx.c:44:	plat_dat->has_gmac = true;
+dwmac-lpc18xx.c:53:	if (plat_dat->interface == PHY_INTERFACE_MODE_MII) {
+dwmac-lpc18xx.c:55:	} else if (plat_dat->interface == PHY_INTERFACE_MODE_RMII) {
+dwmac-dwc-qos-eth.c:48:	if (!plat_dat->axi) {
+dwmac-dwc-qos-eth.c:49:		plat_dat->axi = kzalloc(sizeof(struct stmmac_axi), GFP_KERNEL);
+dwmac-dwc-qos-eth.c:51:		if (!plat_dat->axi)
+dwmac-dwc-qos-eth.c:55:	plat_dat->axi->axi_lpi_en = device_property_read_bool(dev,
+dwmac-dwc-qos-eth.c:58:				     &plat_dat->axi->axi_wr_osr_lmt)) {
+dwmac-dwc-qos-eth.c:63:		plat_dat->axi->axi_wr_osr_lmt = 1;
+dwmac-dwc-qos-eth.c:69:		plat_dat->axi->axi_wr_osr_lmt--;
+dwmac-dwc-qos-eth.c:73:				     &plat_dat->axi->axi_rd_osr_lmt)) {
+dwmac-dwc-qos-eth.c:78:		plat_dat->axi->axi_rd_osr_lmt = 1;
+dwmac-dwc-qos-eth.c:84:		plat_dat->axi->axi_rd_osr_lmt--;
+dwmac-dwc-qos-eth.c:93:			plat_dat->axi->axi_blen[a_index] = 4; break;
+dwmac-dwc-qos-eth.c:95:			plat_dat->axi->axi_blen[a_index] = 8; break;
+dwmac-dwc-qos-eth.c:97:			plat_dat->axi->axi_blen[a_index] = 16; break;
+dwmac-dwc-qos-eth.c:99:			plat_dat->axi->axi_blen[a_index] = 32; break;
+dwmac-dwc-qos-eth.c:101:			plat_dat->axi->axi_blen[a_index] = 64; break;
+dwmac-dwc-qos-eth.c:103:			plat_dat->axi->axi_blen[a_index] = 128; break;
+dwmac-dwc-qos-eth.c:105:			plat_dat->axi->axi_blen[a_index] = 256; break;
+dwmac-dwc-qos-eth.c:114:	plat_dat->has_gmac4 = 1;
+dwmac-dwc-qos-eth.c:115:	plat_dat->dma_cfg->aal = 1;
+dwmac-dwc-qos-eth.c:116:	plat_dat->tso_en = 1;
+dwmac-dwc-qos-eth.c:117:	plat_dat->pmt = 1;
+dwmac-dwc-qos-eth.c:128:	plat_dat->stmmac_clk = devm_clk_get(&pdev->dev, "apb_pclk");
+dwmac-dwc-qos-eth.c:129:	if (IS_ERR(plat_dat->stmmac_clk)) {
+dwmac-dwc-qos-eth.c:131:		return PTR_ERR(plat_dat->stmmac_clk);
+dwmac-dwc-qos-eth.c:134:	err = clk_prepare_enable(plat_dat->stmmac_clk);
+dwmac-dwc-qos-eth.c:141:	plat_dat->pclk = devm_clk_get(&pdev->dev, "phy_ref_clk");
+dwmac-dwc-qos-eth.c:142:	if (IS_ERR(plat_dat->pclk)) {
+dwmac-dwc-qos-eth.c:144:		err = PTR_ERR(plat_dat->pclk);
+dwmac-dwc-qos-eth.c:148:	err = clk_prepare_enable(plat_dat->pclk);
+dwmac-dwc-qos-eth.c:158:	clk_disable_unprepare(plat_dat->stmmac_clk);

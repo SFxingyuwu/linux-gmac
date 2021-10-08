@@ -352,7 +352,7 @@
 			snps,perfect-filter-entries = <128>;
 			rx-fifo-depth = <32768>;
 			tx-fifo-depth = <16384>;
-			clocks = <&clkgen JH7100_CLK_GMAC_AHB>,
+			clocks = <&clkgen JH7100_CLK_GMAC_GTX>,//<&clkgen JH7100_CLK_GMAC_AHB>,
 				 <&clkgen JH7100_CLK_GMAC_AHB>,
 				 <&clkgen JH7100_CLK_GMAC_PTP_REF>;
 			clock-names = "stmmaceth", "pclk", "ptp_ref";

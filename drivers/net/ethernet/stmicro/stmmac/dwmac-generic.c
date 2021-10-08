@@ -11,11 +11,13 @@
 
 #include <linux/module.h>
 #include <linux/of.h>
+#include <linux/io.h>
 #include <linux/platform_device.h>
 
 #include "stmmac.h"
 #include "stmmac_platform.h"
 
+#define INIT_FUNC_GMAC_FLAG		1
 /*
  * GMAC_GTXCLK 为 gmac 的时钟分频寄存器，低8位为分频值
  * bit         name                    access  default         descript
@@ -60,6 +62,89 @@ static void dwmac_fixed_speed(void *priv, unsigned int speed)
 }
 #endif
 
+/////////////////////////////////////////////
+/*test:initialization of gmac for kernel*/
+#if INIT_FUNC_GMAC_FLAG
+
+#define RSTGEN_BASE_ADDR                0x11840000
+#define rstgen_RESET_assert1_shift   0x4
+#define rstgen_RESET_status1_shift   0x14
+
+#define SYSCON_SYSMAIN_CTRL_BASE_ADDR   0x11850000
+#define syscon_sysmain_ctrl_reg28_shift   0x70
+
+
+void ASSERT_RESET_rstgen_gmac_ahb_func(void __iomem *base_addrs)
+{
+	u32 read_value = ioread32(base_addrs + 0x4);
+	read_value |= (1<<28);
+	iowrite32(read_value, base_addrs + 0x4);
+	do {
+		read_value = ioread32(base_addrs + 0x14) >>28;
+		read_value &= 0x1;
+	}while(read_value != 0x0);
+
+}
+
+void CLEAR_RESET_rstgen_gmac_ahb_func(void __iomem *base_addrs)
+{
+	u32 read_value = ioread32(base_addrs + 0x4);
+	read_value &= ~(1<<28);
+	iowrite32(read_value, base_addrs + 0x4);
+	do {
+		read_value = ioread32(base_addrs + 0x14) >>28;
+		read_value &= 0x1;
+	}while(read_value != 0x1);
+}
+
+
+void SET_SYSCON_REG28_gmac_phy_intf_sel_func(void __iomem *base_addrs, \
+															u32 shift, u32 v)
+{
+	u32 read_value = ioread32(base_addrs + shift);
+	read_value &= ~(0x7);
+	read_value |= (v&0x7);
+	iowrite32(read_value, base_addrs + shift);
+}
+
+
+static int init_func_gmac(void)
+{
+	int ret = 0;
+	printk(">>>>>start init_func_gmac test<<<\n");
+
+
+	static void __iomem *rstgen_test_addr;
+	rstgen_test_addr = ioremap(RSTGEN_BASE_ADDR,  0x20);
+	if (NULL == rstgen_test_addr) {
+        printk(KERN_INFO "Failed to remap hardware register!\n");
+        ret = -ENOMEM;
+ 	}	
+
+	ASSERT_RESET_rstgen_gmac_ahb_func(rstgen_test_addr);
+	CLEAR_RESET_rstgen_gmac_ahb_func(rstgen_test_addr);
+
+	printk(">>>>>gmac_ahb test sucess<<<\n");
+
+
+	static void __iomem *syscon_sysmain_ctrl_test_addr;
+	syscon_sysmain_ctrl_test_addr = ioremap(SYSCON_SYSMAIN_CTRL_BASE_ADDR,  0x80);
+	if (NULL == syscon_sysmain_ctrl_test_addr) {
+        printk(KERN_INFO "Failed to remap hardware register!\n");
+        ret = -ENOMEM;
+ 	}
+	
+	SET_SYSCON_REG28_gmac_phy_intf_sel_func(syscon_sysmain_ctrl_test_addr, \
+											syscon_sysmain_ctrl_reg28_shift,\
+											0x1	);//rgmi	
+
+	printk(">>>>>>>>init_func_gmac test sucess<<<<<<<<\n");
+
+	return ret;
+}
+
+#endif
+
 static int dwmac_generic_probe(struct platform_device *pdev)
 {
 	struct plat_stmmacenet_data *plat_dat;
@@ -99,6 +184,11 @@ static int dwmac_generic_probe(struct platform_device *pdev)
 #ifdef CONFIG_SOC_STARFIVE_VIC7100
 	plat_dat->fix_mac_speed = dwmac_fixed_speed;
 #endif
+
+	/*test:initialization of gmac for kernel*/
+	#if INIT_FUNC_GMAC_FLAG
+	init_func_gmac();
+	#endif
 
 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (ret)

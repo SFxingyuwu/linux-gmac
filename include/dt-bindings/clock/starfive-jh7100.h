@@ -201,8 +201,9 @@
 /*fix the clock*/
 #define JH7100_CLK_DDR_ROOT     191
 #define JH7100_CLK_AHB0_BUS    192
+#define JH7100_CLK_GMAC_RMII_REF    193
 
-#define JH7100_CLK_SYS_MAX		193
+#define JH7100_CLK_SYS_MAX		194
 
 
 /* audio */

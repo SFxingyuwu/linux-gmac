@@ -1065,6 +1065,7 @@ int phylink_connect_phy(struct phylink *pl, struct phy_device *phy)
 		pl->link_interface = phy->interface;
 		pl->link_config.interface = pl->link_interface;
 	}
+	printk("11111test11111i\n");
 
 	ret = phylink_attach_phy(pl, phy, pl->link_interface);
 	if (ret < 0)
@@ -1141,6 +1142,8 @@ int phylink_fwnode_phy_connect(struct phylink *pl,
 		phy_device_free(phy_dev);
 		return ret;
 	}
+
+	printk("222222test11111i\n");	
 
 	ret = phylink_bringup_phy(pl, phy_dev, pl->link_config.interface);
 	if (ret)
@@ -2236,6 +2239,7 @@ static int phylink_sfp_connect_phy(void *upstream, struct phy_device *phy)
 	if (ret < 0)
 		return ret;
 
+	printk("33333test11111i\n");
 	ret = phylink_bringup_phy(pl, phy, interface);
 	if (ret)
 		phy_detach(phy);

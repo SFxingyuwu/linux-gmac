@@ -145,6 +145,12 @@ static const struct clk_div_table sdio1_cclkint_div_table[] = {
     { .val = 6, .div = 6, },
     { }
 };
+
+static const struct clk_div_table uart3_core_div_table[] = {
+    { .val = 5, .div = 5, },
+    { }
+};
+
 struct clk_starfive_jh7100_priv {
 	spinlock_t rmw_lock;
 	struct device *dev;
@@ -166,6 +172,14 @@ static struct clk_hw * __init starfive_clk_underspecifid(struct clk_starfive_jh7
 	 */
 	return devm_clk_hw_register_fixed_factor(priv->dev, name, parent, 0, 1,
 						 1);
+}
+
+static struct clk_hw * __init starfive_clk_fixed_rate(struct clk_starfive_jh7100_priv *priv,
+							 const char *name,
+							 const char *parent,
+							 unsigned long fixed_rate)
+{
+	return clk_hw_register_fixed_rate(priv->dev, name, parent, 0, fixed_rate);
 }
 
 static struct clk_hw * __init starfive_clk_pll_mult(struct clk_starfive_jh7100_priv *priv,
@@ -346,6 +360,8 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	struct clk_hw **hws = priv->clk_hws.hws;
 	struct clk *osc_sys, *osc_aud;
 
+	printk(KERN_INFO ">>>>>>>starfive_clkgen_init start\n");
+	
 	osc_sys = devm_clk_get(priv->dev, "osc_sys");
 	if (IS_ERR(osc_sys))
 		return PTR_ERR(osc_sys);
@@ -380,7 +396,10 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_PLL1_TESTOUT]		= starfive_clk_gated_divider(priv, "pll1_testout",		"pll1_out",	0x44, 5);
 	hws[JH7100_CLK_PLL2_TESTOUT]		= starfive_clk_gated_divider(priv, "pll2_testout",		"pll2_out",	0x48, 5);
 	hws[JH7100_CLK_PLL2_REF]		= starfive_clk_mux(priv, "pll2_refclk",	0x4c, 1, pll2_refclk_sels, ARRAY_SIZE(pll2_refclk_sels));
-	
+	clk_prepare_enable(hws[JH7100_CLK_PLL0_TESTOUT]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_PLL1_TESTOUT]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_PLL2_TESTOUT]->clk);
+
 	//
 	hws[JH7100_CLK_CPU_CORE]		= starfive_clk_divider(priv, "cpu_core",	"cpunbus_root_div",	0x50, 4);
 	hws[JH7100_CLK_CPU_AXI]			= starfive_clk_divider(priv, "cpu_axi",		"cpu_core",	0x54, 4);
@@ -406,7 +425,7 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_SGDMA2P_AXI]		= starfive_clk_gate(priv, "sgdma2p_axi",		"cpu_axi",	0x7c);
 	hws[JH7100_CLK_DMA2PNOC_AXI]		= starfive_clk_gate(priv, "dma2pnoc_axi",	"cpu_axi",	0x80);
 	hws[JH7100_CLK_SGDMA2P_AHB]		= starfive_clk_gate(priv, "sgdma2p_ahb",	"ahb0_bus",	0x84);
-	/*
+	
 	hws[JH7100_CLK_DLA_BUS]			= starfive_clk_divider(priv, "dla_bus",	"dla_root",	0x88, 3);
 	hws[JH7100_CLK_DLA_AXI]			= starfive_clk_gate(priv, "dla_axi",	"dla_bus",	0x8c);
 	hws[JH7100_CLK_DLANOC_AXI]		= starfive_clk_gate(priv, "dlanoc_axi",	"dla_bus",	0x90);
@@ -439,8 +458,14 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_DDRPLL_DIV4]		= starfive_clk_gated_divider(priv, "ddrpll_div4",	"ddrpll_div2",	0xfc, 2);
 	hws[JH7100_CLK_DDRPLL_DIV8]		= starfive_clk_gated_divider(priv, "ddrpll_div8",	"ddrpll_div4",	0x100, 2);
 	hws[JH7100_CLK_DDROSC_DIV2]		= starfive_clk_gated_divider(priv, "ddrosc_div2",	"osc_sys",	0x104, 2);
+	clk_prepare_enable(hws[JH7100_CLK_DDRPLL_DIV2]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_DDRPLL_DIV4]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_DDRPLL_DIV8]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_DDROSC_DIV2]->clk);
 	hws[JH7100_CLK_DDRC0]			= starfive_clk_mux(priv, "ddrc0",	0x108, 2, ddrc0_sels, ARRAY_SIZE(ddrc0_sels));
 	hws[JH7100_CLK_DDRC1]			= starfive_clk_mux(priv, "ddrc1",	0x10c, 2, ddrc1_sels, ARRAY_SIZE(ddrc1_sels));
+	clk_prepare_enable(hws[JH7100_CLK_DDRC0]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_DDRC1]->clk);
 
 	hws[JH7100_CLK_DDRPHY_APB]		= starfive_clk_gate(priv, "ddrphy_apb",	"apb1_bus",	0x110);
 	hws[JH7100_CLK_NOC_ROB]			= starfive_clk_divider(priv, "noc_rob",	"cpunbus_root_div",	0x114, 4);
@@ -452,26 +477,32 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_NNENOC_AXI]		= starfive_clk_gate(priv, "nnenoc_axi",	"nne_bus",	0x12c);
 	hws[JH7100_CLK_DLASLV_AXI]		= starfive_clk_gate(priv, "dlaslv_axi",	"nne_bus",	0x130);
 	hws[JH7100_CLK_DSPX2C_AXI]		= starfive_clk_gate(priv, "dspx2c_axi",	"nne_bus",	0x134);
+	clk_prepare_enable(hws[JH7100_CLK_DLASLV_AXI]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_DSPX2C_AXI]->clk);
 	hws[JH7100_CLK_HIFI4_SRC]		= starfive_clk_divider(priv, "hifi4_src",	"cdechifi4_root",	0x138, 3);
 	hws[JH7100_CLK_HIFI4_COREFREE]		= starfive_clk_divider(priv, "hifi4_corefree",	"hifi4_src", 0x13c, 4);
 	hws[JH7100_CLK_HIFI4_CORE]		= starfive_clk_gate(priv, "hifi4_core",	"hifi4_corefree",	0x140);
 	hws[JH7100_CLK_HIFI4_BUS]		= starfive_clk_divider(priv, "hifi4_bus",	"hifi4_corefree",	0x144, 4);
 	hws[JH7100_CLK_HIFI4_AXI]		= starfive_clk_gate(priv, "hifi4_axi",	"hifi4_bus",	0x148);
 	hws[JH7100_CLK_HIFI4NOC_AXI]		= starfive_clk_gate(priv, "hifi4noc_axi",	"hifi4_bus",	0x14c);
-	*/
+	
 	hws[JH7100_CLK_SGDMA1P_BUS]		= starfive_clk_divider(priv, "sgdma1p_bus",	"cpunbus_root_div",	0x150, 4);
 	hws[JH7100_CLK_SGDMA1P_AXI]		= starfive_clk_gate(priv, "sgdma1p_axi",	"sgdma1p_bus",	0x154);
 	hws[JH7100_CLK_DMA1P_AXI]		= starfive_clk_gate(priv, "dma1p_axi",	"sgdma1p_bus",	0x158);
-	/*
+		
 	hws[JH7100_CLK_X2C_AXI]			= starfive_clk_gated_divider(priv, "x2c_axi",	"cpunbus_root_div",	0x15c, 4);
+	clk_prepare_enable(hws[JH7100_CLK_X2C_AXI]->clk);
 	hws[JH7100_CLK_USB_BUS]			= starfive_clk_divider(priv, "usb_bus",	"cpunbus_root_div",	0x160, 4);
 	hws[JH7100_CLK_USB_AXI]			= starfive_clk_gate(priv, "usb_axi",	"usb_bus",	0x164);
+	clk_prepare_enable(hws[JH7100_CLK_USB_AXI]->clk);
 	hws[JH7100_CLK_USBNOC_AXI]		= starfive_clk_gate(priv, "usbnoc_axi",	"usb_bus",	0x168);
-
 	hws[JH7100_CLK_USBPHY_ROOTDIV]		= starfive_clk_divider(priv, "usbphy_rootdiv",	"gmacusb_root",	0x16c, 3);
 	hws[JH7100_CLK_USBPHY_125M]		= starfive_clk_gated_divider(priv, "usbphy_125m",	"usbphy_rootdiv",	0x170, 4);
+	clk_prepare_enable(hws[JH7100_CLK_USBPHY_125M]->clk);
 	hws[JH7100_CLK_USBPHY_PLLDIV25M]	= starfive_clk_gated_divider(priv, "usbphy_plldiv25m",	"usbphy_rootdiv",	0x174, 6);
+	clk_prepare_enable(hws[JH7100_CLK_USBPHY_PLLDIV25M]->clk);
 	hws[JH7100_CLK_USBPHY_25M]		= starfive_clk_mux(priv, "usbphy_25m",	0x178, 1, usbphy_25m_sels, ARRAY_SIZE(usbphy_25m_sels));
+	/*
 	hws[JH7100_CLK_AUDIO_DIV]		= starfive_clk_divider(priv, "audio_div",	"audio_root",	0x17c, 18);
 	hws[JH7100_CLK_AUDIO_SRC]		= starfive_clk_gate(priv, "audio_src",	"audio_div",	0x180);
 	hws[JH7100_CLK_AUDIO_12288]		= starfive_clk_gate(priv, "audio_12288",	"audio_src_12288",	0x184);
@@ -491,7 +522,8 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_DISP_BUS]		= starfive_clk_divider(priv, "disp_bus",	"dispbus_src",	0x1bc, 3);
 	hws[JH7100_CLK_DISP_AXI]		= starfive_clk_gate(priv, "disp_axi",	"disp_bus",	0x1c0);
 	hws[JH7100_CLK_DISPNOC_AXI]		= starfive_clk_gate(priv, "dispnoc_axi",	"disp_bus",	0x1c4);
-	*/
+*/
+
 	hws[JH7100_CLK_SDIO0_AHB]		= starfive_clk_gate(priv, "sdio0_ahb",	"ahb_bus",	0x1c8);
 	hws[JH7100_CLK_SDIO0_CCLKINT]		= starfive_clk_gated_divider(priv, "sdio0_cclkint",	"perh0_src",	0x1cc, 5);
 	hws[JH7100_CLK_SDIO0_CCLKINT_INV]	= starfive_clk_gate_dis(priv, "sdio0_cclkint_inv",	"sdio0_cclkint",	0x1d0);
@@ -503,17 +535,29 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_SDIO1_CCLKINT_INV]	= starfive_clk_gate_dis(priv, "sdio1_cclkint_inv",	"sdio1_cclkint",	0x1dc);
 	
 	hws[JH7100_CLK_GMAC_AHB]		= starfive_clk_gate(priv, "gmac_ahb",	"ahb_bus",	0x1e0);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_AHB]->clk);
 	hws[JH7100_CLK_GMAC_ROOT_DIV]		= starfive_clk_divider(priv, "gmac_root_div",	"gmacusb_root",	0x1e4, 4);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_ROOT_DIV]->clk);
 	hws[JH7100_CLK_GMAC_PTP_REF]		= starfive_clk_gated_divider(priv, "gmac_ptp_refclk",	"gmac_root_div",	0x1e8, 5);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_PTP_REF]->clk);
 	hws[JH7100_CLK_GMAC_GTX]		= starfive_clk_gated_divider(priv, "gmac_gtxclk",	"gmac_root_div",	0x1ec, 8);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_GTX]->clk);
 	hws[JH7100_CLK_GMAC_RMII_TX]		= starfive_clk_gated_divider(priv, "gmac_rmii_txclk",	"gmac_rmii_ref",	0x1f0, 4);
 	hws[JH7100_CLK_GMAC_RMII_RX]		= starfive_clk_gated_divider(priv, "gmac_rmii_rxclk",	"gmac_rmii_ref",	0x1f4, 4);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_RMII_TX]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_RMII_RX]->clk);
 	hws[JH7100_CLK_GMAC_TX]			= starfive_clk_mux(priv, "gmac_tx",	0x1f8, 2, gmac_tx_sels, ARRAY_SIZE(gmac_tx_sels));
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_TX]->clk);
 	hws[JH7100_CLK_GMAC_TX_INV]		= starfive_clk_gate_dis(priv, "gmac_tx_inv",	"gmac_tx",	0x1fc);
 	hws[JH7100_CLK_GMAC_RX_PRE]		= starfive_clk_mux(priv, "gmac_rx_pre",	0x200, 1, gmac_rx_pre_sels, ARRAY_SIZE(gmac_rx_pre_sels));
+	//"gmac_rx" have not been defined
+	//"gmac_rmii_ref" have not been defined
+	//"gmac_rx_dly" have not been define
 	hws[JH7100_CLK_GMAC_RX_INV]		= starfive_clk_gate_dis(priv, "gmac_rx_inv",	"gmac_rx_dly",	0x204);
 	hws[JH7100_CLK_GMAC_RMII]		= starfive_clk_gate(priv, "gmac_rmii",	"gmac_rmii_ref",	0x208);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_RMII]->clk);
 	hws[JH7100_CLK_GMAC_TOPHYREF]		= starfive_clk_gated_divider(priv, "gmac_tophyref",	"gmac_root_div",	0x20c, 7);
+	clk_prepare_enable(hws[JH7100_CLK_GMAC_TOPHYREF]->clk);
 
 	/*
 	hws[JH7100_CLK_SPI2AHB_AHB]		= starfive_clk_gate(priv, "spi2ahb_ahb",	"ahb0_bus",	0x210);
@@ -527,32 +571,38 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_SEC_AHB]			= starfive_clk_gate(priv, "sec_ahb",	"ahb0_bus",	0x230);
 	*/
 	/*
-	hws[JH7100_CLK_AES]			= starfive_clk_gate(priv, "aes_clk",		UNKNOWN,	0x234);
-	hws[JH7100_CLK_SHA]			= starfive_clk_gate(priv, "sha_clk",		UNKNOWN,	0x238);
-	hws[JH7100_CLK_PKA]			= starfive_clk_gate(priv, "pka_clk",		UNKNOWN,	0x23c);
-	hws[JH7100_CLK_TRNG_APB]		= starfive_clk_gate(priv, "trng_apb",		UNKNOWN,	0x240);
-	hws[JH7100_CLK_OTP_APB]			= starfive_clk_gate(priv, "otp_apb",		UNKNOWN,	0x244);
-	hws[JH7100_CLK_UART0_APB]		= starfive_clk_gate(priv, "uart0_apb",		UNKNOWN,	0x248);
-	hws[JH7100_CLK_UART0_CORE]		= starfive_clk_gated_divider(priv, "uart0_core",		UNKNOWN,	0x24c, 6);
-	hws[JH7100_CLK_UART1_APB]		= starfive_clk_gate(priv, "uart1_apb",		UNKNOWN,	0x250);
-	hws[JH7100_CLK_UART1_CORE]		= starfive_clk_gated_divider(priv, "uart1_core",		UNKNOWN,	0x254, 6);
-	hws[JH7100_CLK_SPI0_APB]		= starfive_clk_gate(priv, "spi0_apb",		UNKNOWN,	0x258);
-	hws[JH7100_CLK_SPI0_CORE]		= starfive_clk_gated_divider(priv, "spi0_core",		UNKNOWN,	0x25c, 6);
-	hws[JH7100_CLK_SPI1_APB]		= starfive_clk_gate(priv, "spi1_apb",		UNKNOWN,	0x260);
-	hws[JH7100_CLK_SPI1_CORE]		= starfive_clk_gated_divider(priv, "spi1_core",		UNKNOWN,	0x264, 6);
-	hws[JH7100_CLK_I2C0_APB]		= starfive_clk_gate(priv, "i2c0_apb",		UNKNOWN,	0x268);
-	hws[JH7100_CLK_I2C0_CORE]		= starfive_clk_gated_divider(priv, "i2c0_core",		UNKNOWN,	0x26c, 6);
-	hws[JH7100_CLK_I2C1_APB]		= starfive_clk_gate(priv, "i2c1_apb",		UNKNOWN,	0x270);
-	hws[JH7100_CLK_I2C1_CORE]		= starfive_clk_gated_divider(priv, "i2c1_core",		UNKNOWN,	0x274, 6);
-	hws[JH7100_CLK_GPIO_APB]		= starfive_clk_gate(priv, "gpio_apb",		UNKNOWN,	0x278);
-	hws[JH7100_CLK_UART2_APB]		= starfive_clk_gate(priv, "uart2_apb",		UNKNOWN,	0x27c);
-	hws[JH7100_CLK_UART2_CORE]		= starfive_clk_gated_divider(priv, "uart2_core",		UNKNOWN,	0x280, 6);
+	hws[JH7100_CLK_AES]			= starfive_clk_gate(priv, "aes_clk",	"sec_ahb",	0x234);
+	hws[JH7100_CLK_SHA]			= starfive_clk_gate(priv, "sha_clk",	"sec_ahb",	0x238);
+	hws[JH7100_CLK_PKA]			= starfive_clk_gate(priv, "pka_clk",	"sec_ahb",	0x23c);
+	hws[JH7100_CLK_TRNG_APB]		= starfive_clk_gate(priv, "trng_apb",	"apb1_bus",	0x240);
+	hws[JH7100_CLK_OTP_APB]			= starfive_clk_gate(priv, "otp_apb",	"apb1_bus",	0x244);
+	hws[JH7100_CLK_UART0_APB]		= starfive_clk_gate(priv, "uart0_apb",	"apb1_bus",	0x248);
+	hws[JH7100_CLK_UART0_CORE]		= starfive_clk_gated_divider(priv, "uart0_core",	"perh1_src",	0x24c, 6);
+	hws[JH7100_CLK_UART1_APB]		= starfive_clk_gate(priv, "uart1_apb",	"apb1_bus",	0x250);
+	hws[JH7100_CLK_UART1_CORE]		= starfive_clk_gated_divider(priv, "uart1_core",	"perh1_src",	0x254, 6);
+	hws[JH7100_CLK_SPI0_APB]		= starfive_clk_gate(priv, "spi0_apb",	"apb1_bus",	0x258);
+	hws[JH7100_CLK_SPI0_CORE]		= starfive_clk_gated_divider(priv, "spi0_core",	"perh1_src",	0x25c, 6);
+	hws[JH7100_CLK_SPI1_APB]		= starfive_clk_gate(priv, "spi1_apb",	"apb1_bus",	0x260);
+	hws[JH7100_CLK_SPI1_CORE]		= starfive_clk_gated_divider(priv, "spi1_core",	"perh1_src",	0x264, 6);
+	hws[JH7100_CLK_I2C0_APB]		= starfive_clk_gate(priv, "i2c0_apb",	"apb1_bus",	0x268);
+	hws[JH7100_CLK_I2C0_CORE]		= starfive_clk_gated_divider(priv, "i2c0_core",	"perh1_src",	0x26c, 6);
+	hws[JH7100_CLK_I2C1_APB]		= starfive_clk_gate(priv, "i2c1_apb",	"apb1_bus",	0x270);
+	hws[JH7100_CLK_I2C1_CORE]		= starfive_clk_gated_divider(priv, "i2c1_core",	"perh1_src",	0x274, 6);
 	*/
-	//hws[JH7100_CLK_UART3_APB]		= starfive_clk_gate(priv, "uart3_apb",	"apb2_bus",	0x284);
-	//hws[JH7100_CLK_UART3_CORE]		= starfive_clk_gated_divider(priv, "uart3_core",	"perh0_src",	0x288, 6);
 
-	hws[JH7100_CLK_UART3_APB]		= devm_clk_hw_register_fixed_factor(priv->dev, "uart3_apb",	"osc_sys",0, 5, 1);
-	hws[JH7100_CLK_UART3_CORE]		= devm_clk_hw_register_fixed_factor(priv->dev, "uart3_core","osc_sys",0, 4, 1);
+	hws[JH7100_CLK_GPIO_APB]		= starfive_clk_gate(priv, "gpio_apb", "apb1_bus", 0x278);
+	hws[JH7100_CLK_UART2_APB]		= starfive_clk_gate(priv, "uart2_apb",		"apb2_bus",	0x27c);
+	hws[JH7100_CLK_UART2_CORE]		= starfive_clk_gated_divider(priv, "uart2_core",	"perh0_src",	0x280, 6);
+	
+	hws[JH7100_CLK_UART3_APB]		= starfive_clk_gate(priv, "uart3_apb",	"apb2_bus",	0x284);
+	hws[JH7100_CLK_UART3_CORE]		= clk_hw_register_divider_table(priv->dev, "uart3_core",	"perh0_src",
+		                         CLK_SET_RATE_PARENT | CLK_SET_RATE_GATE, priv->base + 0x288, 0, 6, 0, uart3_core_div_table, &priv->rmw_lock);
+								 //= starfive_clk_gated_divider(priv, "uart3_core",	"perh0_src",	0x288, 6);
+	clk_prepare_enable(hws[JH7100_CLK_UART3_APB]->clk);
+	clk_prepare_enable(hws[JH7100_CLK_UART3_CORE]->clk);
+
+	//hws[JH7100_CLK_UART3_APB]		= devm_clk_hw_register_fixed_factor(priv->dev, "uart3_apb",	"osc_sys",0, 5, 1);
+	//hws[JH7100_CLK_UART3_CORE]		= devm_clk_hw_register_fixed_factor(priv->dev, "uart3_core","osc_sys",0, 4, 1);
 
 	hws[JH7100_CLK_SPI2_APB]		= starfive_clk_gate(priv, "spi2_apb",	"apb2_bus",	0x28c);
 	hws[JH7100_CLK_SPI2_CORE]		= starfive_clk_gated_divider(priv, "spi2_core",	"perh0_src",	0x290, 6);
@@ -579,6 +629,11 @@ static int __init starfive_clkgen_init(struct clk_starfive_jh7100_priv *priv)
 	hws[JH7100_CLK_TEMP_SENSE]		= starfive_clk_gated_divider(priv, "temp_sense",		UNKNOWN,	0x2e0, 5);
 	hws[JH7100_CLK_SYSERR_APB]		= starfive_clk_gate(priv, "syserr_apb",		UNKNOWN,	0x2e4);
 */
+
+	/*fixed the clock*/
+	hws[JH7100_CLK_DDR_ROOT]		= starfive_clk_underspecifid(priv, "ddr_root", "pll1_out");
+	hws[JH7100_CLK_AHB0_BUS]		= starfive_clk_underspecifid(priv, "ahb0_bus", "ahb_bus");	
+	hws[JH7100_CLK_GMAC_RMII_REF]	= starfive_clk_fixed_rate(priv, "gmac_rmii_ref", NULL, 50000000);
 
 /*{
 	// FIXME Temporary overrides until we get the clock tree right
@@ -694,6 +749,7 @@ static int __init clk_starfive_jh7100_probe(struct platform_device *pdev)
 	if (error)
 		goto cleanup;
 
+	printk(">>>>>>>starfive_clkgen_init sucess<<<<\n");
 	return 0;
 
 cleanup:
